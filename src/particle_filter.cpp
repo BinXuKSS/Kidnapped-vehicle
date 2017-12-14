@@ -143,7 +143,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 	for(auto p = particles.begin();p != particles.end(); ++p)
 	{
-		vector<LandmarkObs> p_obs;
+		LandmarkObs p_obs;
 		//map observations for particle from particle coordinate to map coordinate
 		for(auto o = observations.begin();o != observations.end(); ++o)
 		{
@@ -156,10 +156,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		vector<LandmarkObs> landmarks_p_obss;
 		for(auto l = map_landmarks.landmark_list.begin();l != map_landmarks.landmark_list.end(); ++l)
 		{
-			auto distance = dist(p->x,p->y,l->x,l->y);
+			auto distance = dist(p->x,p->y,l->x_f,l->y_f);
 			if(distance <= sensor_range)
 			{
-				LandmarkObs landmarks_p_obs(l->id, l->x, l->y);
+				LandmarkObs landmarks_p_obs(l->id_i, l->x_f, l->y_f);
 				landmarks_p_obss.push_back(landmarks_p_obs);
 			}
 		}
@@ -179,14 +179,14 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		{
 			double x_obs= it->x;
 			double y_obs= it->y;
-			for(auto l = map_landmarks.begin();l != map_landmarks.end(); ++l)
+			for(auto l = landmarks_p_obss.begin();l != landmarks_p_obss.end(); ++l)
 			{
-				if(it.id == l.id)
+				if(it->id == l->id_i)
 				{
-					double mu_x= l.x;
-					double mu_y= l.y;
+					double mu_x= l->x_f;
+					double mu_y= l->y_f;
 								// calculate exponent
-					double exponent= ((x_obs - mu_x)**2)/(2 * sig_x**2) + ((y_obs - mu_y)**2)/(2 * sig_y**2)
+					double exponent= ((x_obs - mu_x)*(x_obs - mu_x))/(2 * sig_x*sig_x) + ((y_obs - mu_y)*(y_obs - mu_y))/(2 * sig_y*sig_y)
 					// calculate weight using normalization terms and exponent
 					p->weight *= gauss_norm * exp(-exponent);
 
