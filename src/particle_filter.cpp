@@ -42,12 +42,12 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	for (int i = 0; i < num_particles; ++i) 
 		{		
 		Particle Part;	
-		Part.ID = i;
+		Part.id = i;
 		Part.x = dist_x(gen);		 
 		Part.y = dist_y(gen);		 
 		Part.theta = dist_theta(gen);	
 		Part.weight = 1;
-		particles.pushback(Part);
+		particles.push_back(Part);
 
 		}
 
@@ -143,23 +143,24 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 	for(auto p = particles.begin();p != particles.end(); ++p)
 	{
+		vector<LandmarkObs> p_obs;
 		//map observations for particle from particle coordinate to map coordinate
 		for(auto o = observations.begin();o != observations.end(); ++o)
 		{
-			vector<LandmarkObs> p_obs;
-			p_obs.x = p.x + cos(p.theta)*o->x-sin(p.theta)*o->y;
-			p_obs.y = p.y + sin(p.theta)*o->x + cos(p.theta)*o->y;
+			
+			p_obs.x = p->x + cos(p->theta)*o->x-sin(p->theta)*o->y;
+			p_obs.y = p->y + sin(p->theta)*o->x + cos(p->theta)*o->y;
 		}
 
 		//do data association based on the landmarks with sensor range
 		vector<LandmarkObs> landmarks_p_obss;
-		for(auto l = map_landmarks.begin();l != map_landmarks.end(); ++l)
+		for(auto l = map_landmarks.landmark_list.begin();l != map_landmarks.landmark_list.end(); ++l)
 		{
 			auto distance = dist(p->x,p->y,l->x,l->y);
 			if(distance <= sensor_range)
 			{
 				LandmarkObs landmarks_p_obs(l->id, l->x, l->y);
-				landmarks_p_obss.pushback(landmarks_p_obs);
+				landmarks_p_obss.push_back(landmarks_p_obs);
 			}
 		}
 
@@ -172,7 +173,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		double sig_y = std_landmark[1];
 
 		// calculate normalization term
-		double gauss_norm = (1/(2 * M_PI * sig_x * sig_y))
+		double gauss_norm = (1/(2 * M_PI * sig_x * sig_y));
 
 		for(auto it = p_obs.begin();it != p_obs.end(); ++it)
 		{
@@ -197,7 +198,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		}
 
-		weights.pushback(p->weight);
+		weights.push_back(p->weight);
 		
 	}
 
