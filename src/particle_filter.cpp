@@ -161,7 +161,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			auto distance = dist(p->x,p->y,l->x_f,l->y_f);
 			if(distance <= sensor_range)
 			{
-				LandmarkObs landmarks_p_obs(l->id_i, l->x_f, l->y_f);
+				LandmarkObs landmarks_p_obs;
+				landmarks_p_obs.id = l->id_i;
+				landmarks_p_obs.x = l->x_f;
+				landmarks_p_obs.y = l->y_f;
 				landmarks_p_obss.push_back(landmarks_p_obs);
 			}
 		}
