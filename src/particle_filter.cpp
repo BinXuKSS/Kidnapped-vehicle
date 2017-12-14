@@ -52,6 +52,8 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 		}
 
 	is_initialized = true;
+
+	cout << "init" << is_initialized << endl;
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
@@ -103,7 +105,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 
 	}
 	
-	
+	cout <<"std_x" << std_x << endl;
 
 }
 
@@ -182,6 +184,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		// calculate normalization term
 		double gauss_norm = (1/(2 * M_PI * sig_x * sig_y));
 
+		cout << "2" << endl;
+
 		for(auto it = observationsPart.begin();it != observationsPart.end(); ++it)
 		{
 			double x_obs= it->x;
@@ -226,6 +230,8 @@ void ParticleFilter::resample() {
 		const Particle &src = particles[d(gen)];    
 		new_particles.push_back(src);  
 	}  
+
+	cout << "3" << endl;
 	particles.clear();  
 	particles.insert(particles.end(), new_particles.begin(), new_particles.end());
 	
