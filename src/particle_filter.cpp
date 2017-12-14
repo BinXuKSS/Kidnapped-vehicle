@@ -91,6 +91,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 			thetaf = theta0;
 		}
 
+		cout << "predict" << xf << " " << yf << " " << thetaf << endl;
+
 		normal_distribution<double> dist_x(xf, std_x);    
 		normal_distribution<double> dist_y(yf, std_y);    
 		normal_distribution<double> dist_theta(thetaf, std_theta);
@@ -194,6 +196,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 					double exponent= ((x_obs - mu_x)*(x_obs - mu_x))/(2 * sig_x*sig_x) + ((y_obs - mu_y)*(y_obs - mu_y))/(2 * sig_y*sig_y);
 					// calculate weight using normalization terms and exponent
 					p->weight *= gauss_norm * exp(-exponent);
+
+					cout << "weight " << p->weight << endl;
 
 				}
 
