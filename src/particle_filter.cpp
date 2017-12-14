@@ -143,6 +143,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 	for(auto p = particles.begin();p != particles.end(); ++p)
 	{
+		vector<LandmarkObs> observationsPart;
 		LandmarkObs p_obs;
 		//map observations for particle from particle coordinate to map coordinate
 		for(auto o = observations.begin();o != observations.end(); ++o)
@@ -150,6 +151,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			
 			p_obs.x = p->x + cos(p->theta)*o->x-sin(p->theta)*o->y;
 			p_obs.y = p->y + sin(p->theta)*o->x + cos(p->theta)*o->y;
+			observationsPart.push_back(p_obs);
 		}
 
 		//do data association based on the landmarks with sensor range
@@ -159,7 +161,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			auto distance = dist(p->x,p->y,l->x_f,l->y_f);
 			if(distance <= sensor_range)
 			{
-				LandmarkObs landmarks_p_obs(l->id_i, l->x_f, l->y_f);
+				LandmarkObs landmarks_p_obs(l->id, l->x, l->y);
 				landmarks_p_obss.push_back(landmarks_p_obs);
 			}
 		}
@@ -175,18 +177,18 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		// calculate normalization term
 		double gauss_norm = (1/(2 * M_PI * sig_x * sig_y));
 
-		for(auto it = p_obs.begin();it != p_obs.end(); ++it)
+		for(auto it = observationsPart.begin();it != observationsPart.end(); ++it)
 		{
 			double x_obs= it->x;
 			double y_obs= it->y;
 			for(auto l = landmarks_p_obss.begin();l != landmarks_p_obss.end(); ++l)
 			{
-				if(it->id == l->id_i)
+				if(it->id == l->id)
 				{
-					double mu_x= l->x_f;
-					double mu_y= l->y_f;
+					double mu_x= l->x;
+					double mu_y= l->y;
 								// calculate exponent
-					double exponent= ((x_obs - mu_x)*(x_obs - mu_x))/(2 * sig_x*sig_x) + ((y_obs - mu_y)*(y_obs - mu_y))/(2 * sig_y*sig_y)
+					double exponent= ((x_obs - mu_x)*(x_obs - mu_x))/(2 * sig_x*sig_x) + ((y_obs - mu_y)*(y_obs - mu_y))/(2 * sig_y*sig_y);
 					// calculate weight using normalization terms and exponent
 					p->weight *= gauss_norm * exp(-exponent);
 
