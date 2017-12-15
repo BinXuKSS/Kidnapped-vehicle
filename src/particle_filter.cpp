@@ -42,7 +42,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	
 	normal_distribution<double> dist_theta(theta, std_theta);		
 	for (int i = 0; i < num_particles; ++i) 
-		{		
+	{		
 		Particle Part;	
 		Part.id = i;
 		Part.x = dist_x(gen);		 
@@ -50,9 +50,8 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 		Part.theta = dist_theta(gen);	
 		Part.weight = 1;
 		particles.push_back(Part);
-		cout << "5" << endl;
 
-		}
+	}
 
 	is_initialized = true;
 
@@ -121,16 +120,19 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	for (int i = 0; i<observations.size();++i )
 	{
 		auto min_d = dist(observations[i].x,observations[i].y,predicted[0].x,predicted[0].y);
+		cout << "observation id before association" << observations[i].id << endl;
 		for (int j=0; j<predicted.size();++j)
 		{
 			auto distance =dist(observations[i].x,observations[i].y,predicted[j].x,predicted[j].y);
 			if(min_d < distance)
 			{
 				min_d = distance;
+				
 				observations[i].id = predicted[j].id;
 			}
 			
 		}
+		cout << "observation id after association" << observations[i].id << endl;
 	}
 
 }
@@ -159,6 +161,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			p_obs.x = particles[i].x + cos(particles[i].theta)*observations[j].x-sin(particles[i].theta)*observations[j].y;
 			p_obs.y = particles[i].y + sin(particles[i].theta)*observations[j].x + cos(particles[i].theta)*observations[j].y;
 			observationsPart.push_back(p_obs);
+			cout << "transformed observation" << p_obs.x << " " << p_obs.y << endl;
 		}
 
 		//do data association based on the landmarks with sensor range
@@ -173,6 +176,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 				landmarks_p_obs.x = map_landmarks.landmark_list[k].x_f;
 				landmarks_p_obs.y = map_landmarks.landmark_list[k].y_f;
 				landmarks_p_obss.push_back(landmarks_p_obs);
+
+				cout << "landmark within senser range" << landmarks_p_obs.id << " " << landmarks_p_obs.x << " " << landmarks_p_obs.y << endl;
 			}
 		}
 
@@ -186,8 +191,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		// calculate normalization term
 		double gauss_norm = (1/(2 * M_PI * sig_x * sig_y));
-
-		cout << "2" << endl;
 
 		for (int j=0; j<observationsPart.size();++j)
 		{
