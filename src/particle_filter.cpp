@@ -48,6 +48,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 		Part.theta = dist_theta(gen);	
 		Part.weight = 1;
 		particles.push_back(Part);
+		cout << "5" << endl;
 
 		}
 
@@ -67,7 +68,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	std_x = std_pos[0];	 
 	std_y = std_pos[1];	 
 	std_theta = std_pos[2];	
-	for(int i=0; i<num_particles; ++i)
+	for (int i=0; i<num_particles; ++i)
 	{
 		double x0 = particles[i].x;
 		double y0 = particles[i].y;
@@ -115,10 +116,10 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	// NOTE: this method will NOT be called by the grading code. But you will probably find it useful to 
 	//   implement this method and use it as a helper during the updateWeights phase.
 
-	for(int i = 0; i<observations.size();++i )
+	for (int i = 0; i<observations.size();++i )
 	{
 		auto min_d = dist(observations[i].x,observations[i].y,predicted[0].x,predicted[0].y);
-		for(int j=0; j<predicted.size();++j)
+		for (int j=0; j<predicted.size();++j)
 		{
 			auto distance =dist(observations[i].x,observations[i].y,predicted[j].x,predicted[j].y);
 			if(min_d < distance)
@@ -145,12 +146,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
 
-	for(int i=0; i<num_particles; ++i)
+	for (int i=0; i<num_particles; ++i)
 	{
 		vector<LandmarkObs> observationsPart;
 		LandmarkObs p_obs;
 		//map observations for particle from particle coordinate to map coordinate
-		for(int j=0; j<observations.size();++j)
+		for (int j=0; j<observations.size();++j)
 		{
 			
 			p_obs.x = particles[i].x + cos(particles[i].theta)*observations[j].x-sin(particles[i].theta)*observations[j].y;
@@ -160,7 +161,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		//do data association based on the landmarks with sensor range
 		vector<LandmarkObs> landmarks_p_obss;
-		for(int k=0; k < map_landmarks.landmark_list.size();++k)
+		for (int k=0; k < map_landmarks.landmark_list.size();++k)
 		{
 			auto distance = dist(particles[i].x,particles[i].y,map_landmarks.landmark_list[k].x_f,map_landmarks.landmark_list[k].y_f);
 			if(distance <= sensor_range)
@@ -186,11 +187,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		cout << "2" << endl;
 
-		for(int j=0; j<observationsPart.size();++j)
+		for (int j=0; j<observationsPart.size();++j)
 		{
 			double x_obs= observationsPart[j].x;
 			double y_obs= observationsPart[j].y;
-			for(int k=0; k<landmarks_p_obss.size();++k)
+			for (int k=0; k<landmarks_p_obss.size();++k)
 			{
 				if(observationsPart[j].id == landmarks_p_obss[k].id)
 				{
@@ -222,18 +223,39 @@ void ParticleFilter::resample() {
 	// TODO: Resample particles with replacement with probability proportional to their weight. 
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
-	  std::default_random_engine gen;  
-	std::discrete_distribution<> d(weights.begin(), weights.end());  
-	std::vector<Particle> new_particles;  
-	for (size_t i = 0; i < particles.size(); ++i) 
-	{    
-		const Particle &src = particles[d(gen)];    
-		new_particles.push_back(src);  
-	}  
+    // Resample particles with replacement with probability proportional to their weight.    
+    vector<Particle> new_particles;    
+	default_random_engine gen;    
+	// Get all of the current weights    
+	//vector<double> weights(num_particles);    
+	//generate(weights.begin(), weights.end(), [i=0, this] () mutable {return particles[i++].weight;});    
+	vector<double> weights;    
+	for (int i=0; i<num_particles; ++i)   
+		{        
+		weights.push_back(particles[i].weight);   
+		}    
+	// Get max weight    
+		double max_weight = *max_element(weights.begin(), weights.end());    
+	// Generate random starting index for resampling wheel    
+	uniform_int_distribution<int> uni_dist(0, num_particles-1);    
+	uniform_real_distribution<double> uni_real_dist(0.0, max_weight);   
+	int index = uni_dist(gen);    
+	double beta = 0.0;    
+	// Resampling wheel    
+	for (int i=0; i<num_particles; ++i)    
+	{        
+		beta += uni_real_dist(gen) * 2.0;        
+		while (weights[index] < beta)        
+		{            
+		beta -= weights[index];            
+		index = (index + 1) % num_particles;        
+		}        
+		new_particles.push_back(particles[index]); 
 
-	cout << "3" << endl;
-	particles.clear();  
-	particles.insert(particles.end(), new_particles.begin(), new_particles.end());
+		cout << "3" << endl;
+	}     
+	particles = new_particles;
+
 	
 
 }
