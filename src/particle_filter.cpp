@@ -124,7 +124,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 		for (int j=0; j<predicted.size();++j)
 		{
 			auto distance =dist(observations[i].x,observations[i].y,predicted[j].x,predicted[j].y);
-			if(min_d < distance)
+			if(min_d > distance)
 			{
 				min_d = distance;
 				
