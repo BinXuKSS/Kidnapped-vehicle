@@ -32,7 +32,9 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// Standard deviations for x, y, and theta	
 	std_x = std[0];	 
 	std_y = std[1];	 
-	std_theta = std[2];	 	
+	std_theta = std[2];	 
+
+	num_particles = 100;
 	// This line creates a normal (Gaussian) distribution for x	
 	normal_distribution<double> dist_x(x, std_x);		
 	
