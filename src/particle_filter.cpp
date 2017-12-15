@@ -99,9 +99,9 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		normal_distribution<double> dist_y(yf, std_y);    
 		normal_distribution<double> dist_theta(thetaf, std_theta);
 
-		particles.x = dist_x(gen);
-		particles.y = dist_y(gen);
-		particles.theta = dist_theta(gen);
+		particles[i].x = dist_x(gen);
+		particles[i].y = dist_y(gen);
+		particles[i].theta = dist_theta(gen);
 
 	}
 	
@@ -188,8 +188,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		for(int j=0; j<observationsPart.size();++j)
 		{
-			double x_obs= observationsPart.x;
-			double y_obs= observationsPart.y;
+			double x_obs= observationsPart[j].x;
+			double y_obs= observationsPart[j].y;
 			for(int k=0; k<landmarks_p_obss.size();++k)
 			{
 				if(observationsPart[j].id == landmarks_p_obss[k].id)
